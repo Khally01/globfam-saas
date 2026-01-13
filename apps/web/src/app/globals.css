@@ -1,0 +1,117 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* GlobFam Craefto Brand Colors */
+    --background: 41 12% 96%;        /* Ivory Mist #F6F6E4 */
+    --foreground: 0 0% 10%;          /* Charcoal #1A1A1A */
+
+    --card: 0 0% 100%;               /* White cards */
+    --card-foreground: 0 0% 10%;     /* Charcoal text */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 194 66% 29%;          /* Deep Teal #184E77 */
+    --primary-foreground: 41 12% 96%; /* Ivory text */
+
+    --secondary: 149 43% 66%;        /* Green #76C893 */
+    --secondary-foreground: 0 0% 10%; /* Charcoal text */
+
+    --muted: 149 43% 90%;            /* Light meadow green */
+    --muted-foreground: 194 40% 35%;
+
+    --accent: 149 43% 66%;           /* Green accent */
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 149 43% 85%;           /* Light green border */
+    --input: 149 43% 85%;
+    --ring: 194 66% 29%;             /* Deep teal ring */
+
+    --radius: 0.5rem;
+
+    /* Semantic Colors for UX States */
+    --success: 142 71% 45%;          /* Green for positive states */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;           /* Amber for warnings */
+    --warning-foreground: 0 0% 10%;
+    --error: 0 84% 60%;              /* Red for errors */
+    --error-foreground: 0 0% 100%;
+    --info: 199 89% 48%;             /* Blue for info */
+    --info-foreground: 0 0% 100%;
+
+    /* Chart Colors using Brand Palette */
+    --chart-1: 142 71% 45%;          /* Success green */
+    --chart-2: 0 84% 60%;            /* Error red */
+    --chart-3: 38 92% 50%;           /* Warning amber */
+    --chart-4: 221 83% 53%;          /* Info blue */
+    --chart-5: 262 83% 58%;          /* Purple accent */
+  }
+
+  .dark {
+    /* Dark mode with GlobFam branding */
+    --background: 0 0% 10%;          /* Charcoal #1A1A1A */
+    --foreground: 41 12% 96%;        /* Ivory text */
+
+    --card: 0 0% 15%;                /* Dark card */
+    --card-foreground: 41 12% 96%;
+
+    --popover: 0 0% 15%;
+    --popover-foreground: 41 12% 96%;
+
+    --primary: 149 43% 66%;          /* Green in dark mode */
+    --primary-foreground: 0 0% 10%;   /* Dark text */
+
+    --secondary: 194 66% 35%;        /* Darker teal */
+    --secondary-foreground: 41 12% 96%;
+
+    --muted: 194 30% 25%;
+    --muted-foreground: 149 30% 70%;
+
+    --accent: 149 43% 66%;
+    --accent-foreground: 0 0% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 194 30% 25%;
+    --input: 194 30% 25%;
+    --ring: 149 43% 66%;             /* Green ring */
+
+    /* Semantic Colors for UX States (Dark Mode) */
+    --success: 142 71% 55%;          /* Slightly brighter green for dark mode */
+    --success-foreground: 0 0% 10%;
+    --warning: 38 92% 60%;           /* Brighter amber for dark mode */
+    --warning-foreground: 0 0% 10%;
+    --error: 0 84% 70%;              /* Brighter red for dark mode */
+    --error-foreground: 0 0% 10%;
+    --info: 199 89% 58%;             /* Brighter blue for dark mode */
+    --info-foreground: 0 0% 10%;
+
+    /* Chart Colors (same as light mode) */
+    --chart-1: 142 71% 55%;
+    --chart-2: 0 84% 70%;
+    --chart-3: 38 92% 60%;
+    --chart-4: 221 83% 63%;
+    --chart-5: 262 83% 68%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-manrope), sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sora), sans-serif;
+    font-weight: 800;
+  }
+}

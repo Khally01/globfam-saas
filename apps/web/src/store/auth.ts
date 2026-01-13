@@ -1,0 +1,72 @@
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
+import type { User, Organization, Family } from '@/lib/shared-types'
+
+interface AuthState {
+  user: User | null
+  organization: Organization | null
+  family: Family | null
+  token: string | null
+  isAuthenticated: boolean
+  setAuth: (data: {
+    user: User
+    organization: Organization
+    family?: Family | null
+    token: string
+  }) => void
+  updateUser: (user: Partial<User>) => void
+  updateFamily: (family: Family | null) => void
+  logout: () => void
+}
+
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      organization: null,
+      family: null,
+      token: null,
+      isAuthenticated: false,
+
+      setAuth: ({ user, organization, family, token }) => {
+        localStorage.setItem('token', token)
+        // Also set as cookie for middleware access
+        document.cookie = `token=${token}; path=/; max-age=${24 * 60 * 60}; samesite=strict`
+        set({
+          user,
+          organization,
+          family,
+          token,
+          isAuthenticated: true,
+        })
+      },
+
+      updateUser: (updates) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...updates } : null,
+        })),
+
+      updateFamily: (family) => set({ family }),
+
+      logout: () => {
+        localStorage.removeItem('token')
+        // Also remove cookie
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; samesite=strict'
+        set({
+          user: null,
+          organization: null,
+          family: null,
+          token: null,
+          isAuthenticated: false,
+        })
+      },
+    }),
+    {
+      name: 'auth-storage',
+      partialize: (state) => ({
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
+    }
+  )
+)
