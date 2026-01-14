@@ -40,6 +40,7 @@ export default function BudgetPage() {
   const [saving, setSaving] = useState(false)
   const [summary, setSummary] = useState<BudgetSummary | null>(null)
   const [editMode, setEditMode] = useState(false)
+  const [budgetName, setBudgetName] = useState('Main Budget')
   const [monthlyIncome, setMonthlyIncome] = useState('')
   const [incomeCurrency, setIncomeCurrency] = useState('AUD')
   const [budgetItems, setBudgetItems] = useState<BudgetItemEdit[]>([])
@@ -70,6 +71,7 @@ export default function BudgetPage() {
       await fetchBudgetComparison(budgetSummary)
 
       // Set edit data
+      setBudgetName(currentBudget.name || 'Main Budget')
       setMonthlyIncome(currentBudget.monthlyIncome.toString())
       setIncomeCurrency(currentBudget.incomeCurrency)
       setBudgetItems(currentBudget.items.map((item: any) => ({
@@ -156,6 +158,7 @@ export default function BudgetPage() {
 
       // Create or update budget
       const budgetData = {
+        name: budgetName || 'Main Budget',
         monthlyIncome: parseFloat(monthlyIncome),
         incomeCurrency,
         month,
@@ -172,6 +175,7 @@ export default function BudgetPage() {
       if (summary?.budget.id) {
         // Update existing budget
         await budgetsApi.update(summary.budget.id, {
+          name: budgetData.name,
           monthlyIncome: budgetData.monthlyIncome,
           incomeCurrency: budgetData.incomeCurrency
         })
@@ -260,7 +264,7 @@ export default function BudgetPage() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Globe className="h-8 w-8 text-primary" />
-            Multi-Currency Budget
+            {budgetName}
           </h1>
           <p className="text-muted-foreground">
             Budget in the currencies you actually use - AUD rent, MNT mortgage, USD remittances
@@ -290,6 +294,29 @@ export default function BudgetPage() {
           )}
         </div>
       </div>
+
+      {/* Budget Name (Edit Mode Only) */}
+      {editMode && (
+        <Card className="mb-4">
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                Budget Name / Scenario
+              </label>
+              <Input
+                type="text"
+                value={budgetName}
+                onChange={(e) => setBudgetName(e.target.value)}
+                placeholder="e.g., Main Budget, Conservative Plan, February 2025"
+                className="text-lg"
+              />
+              <p className="text-xs text-muted-foreground">
+                Give this budget a unique name. Create multiple budgets for different scenarios or future months.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">

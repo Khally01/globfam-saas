@@ -397,6 +397,7 @@ model Budget {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  name           String       @default("Main Budget") // Budget name/scenario (e.g., "Main Budget", "Conservative", "Aggressive")
   monthlyIncome  Decimal      @db.Decimal(20, 2)
   incomeCurrency String       @default("AUD") // Currency for monthly income
   month          DateTime     // Which month this budget is for (e.g., 2026-01-01)
@@ -406,7 +407,7 @@ model Budget {
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  @@unique([userId, month])
+  @@unique([userId, month, name])
   @@index([organizationId])
   @@index([userId])
   @@index([month])

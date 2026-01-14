@@ -8,6 +8,7 @@ const router = Router();
 
 // Validation schemas
 const createBudgetSchema = z.object({
+  name: z.string().min(1).max(100).default("Main Budget"), // Budget name/scenario
   monthlyIncome: z.number().positive(),
   incomeCurrency: z.string().length(3),
   month: z.string().regex(/^\d{4}-\d{2}-01$/), // YYYY-MM-01 format
@@ -22,6 +23,7 @@ const createBudgetSchema = z.object({
 });
 
 const updateBudgetSchema = z.object({
+  name: z.string().min(1).max(100).optional(),
   monthlyIncome: z.number().positive().optional(),
   incomeCurrency: z.string().length(3).optional(),
 });
@@ -43,19 +45,20 @@ router.post('/budgets', authenticate, async (req: AuthRequest, res) => {
   try {
     const data = createBudgetSchema.parse(req.body);
 
-    // Check if budget already exists for this month
+    // Check if budget already exists for this month with this name
     const existing = await prisma.budget.findUnique({
       where: {
-        userId_month: {
+        userId_month_name: {
           userId: req.user!.id,
           month: new Date(data.month),
+          name: data.name || "Main Budget",
         },
       },
     });
 
     if (existing) {
       return res.status(400).json({
-        error: 'Budget already exists for this month. Use PUT to update.',
+        error: `Budget "${data.name || "Main Budget"}" already exists for this month. Use PUT to update or choose a different name.`,
       });
     }
 
@@ -64,6 +67,7 @@ router.post('/budgets', authenticate, async (req: AuthRequest, res) => {
       data: {
         userId: req.user!.id,
         organizationId: req.user!.organizationId,
+        name: data.name || "Main Budget",
         monthlyIncome: data.monthlyIncome,
         incomeCurrency: data.incomeCurrency,
         month: new Date(data.month),
@@ -118,30 +122,57 @@ router.get('/budgets', authenticate, async (req: AuthRequest, res) => {
 
 /**
  * Get budget for current month
- * GET /api/budgets/current
+ * GET /api/budgets/current?name=Main Budget (optional name filter)
  */
 router.get('/budgets/current', authenticate, async (req: AuthRequest, res) => {
   try {
     const now = new Date();
     const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const budgetName = (req.query.name as string) || undefined;
 
-    const budget = await prisma.budget.findUnique({
-      where: {
-        userId_month: {
-          userId: req.user!.id,
-          month: currentMonth,
+    // If name is specified, get that specific budget
+    if (budgetName) {
+      const budget = await prisma.budget.findUnique({
+        where: {
+          userId_month_name: {
+            userId: req.user!.id,
+            month: currentMonth,
+            name: budgetName,
+          },
         },
+        include: {
+          items: true,
+        },
+      });
+
+      if (!budget) {
+        return res.status(404).json({ error: `Budget "${budgetName}" not found for current month` });
+      }
+
+      return res.json({ data: { budget } });
+    }
+
+    // Otherwise, get all budgets for current month
+    const budgets = await prisma.budget.findMany({
+      where: {
+        userId: req.user!.id,
+        organizationId: req.user!.organizationId,
+        month: currentMonth,
       },
       include: {
         items: true,
       },
+      orderBy: {
+        name: 'asc',
+      },
     });
 
-    if (!budget) {
-      return res.status(404).json({ error: 'No budget found for current month' });
+    if (budgets.length === 0) {
+      return res.status(404).json({ error: 'No budgets found for current month' });
     }
 
-    res.json({ data: { budget } });
+    // Return the first budget (usually "Main Budget") or all budgets
+    res.json({ data: { budget: budgets[0], budgets } });
   } catch (error) {
     console.error('Get current budget error:', error);
     res.status(500).json({ error: 'Failed to fetch current budget' });
@@ -191,6 +222,7 @@ router.put('/budgets/:id', authenticate, async (req: AuthRequest, res) => {
         organizationId: req.user!.organizationId,
       },
       data: {
+        name: data.name,
         monthlyIncome: data.monthlyIncome,
         incomeCurrency: data.incomeCurrency,
       },
