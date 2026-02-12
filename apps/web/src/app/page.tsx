@@ -1,5 +1,41 @@
 import Link from 'next/link'
-import { Button } from '@/components/shared-ui'
+import { cn } from '@/lib/utils'
+
+// Link styled as a button — avoids invalid <button> inside <a>
+function ButtonLink({
+  href,
+  variant = 'default',
+  size = 'default',
+  className,
+  children,
+}: {
+  href: string
+  variant?: 'default' | 'outline' | 'ghost'
+  size?: 'default' | 'lg'
+  className?: string
+  children: React.ReactNode
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        {
+          'bg-primary text-primary-foreground hover:bg-primary/90': variant === 'default',
+          'border border-input bg-background hover:bg-accent hover:text-accent-foreground': variant === 'outline',
+          'hover:bg-accent hover:text-accent-foreground': variant === 'ghost',
+        },
+        {
+          'h-10 px-4 py-2': size === 'default',
+          'h-11 rounded-md px-8': size === 'lg',
+        },
+        className
+      )}
+    >
+      {children}
+    </Link>
+  )
+}
 
 export default function HomePage() {
   return (
@@ -11,12 +47,8 @@ export default function HomePage() {
             <img src="/brand/Brand Logo.png" alt="GlobFam" className="h-10" />
           </Link>
           <nav className="flex items-center gap-4">
-            <Link href="/login">
-              <Button variant="ghost">Login</Button>
-            </Link>
-            <Link href="/register">
-              <Button>Get Started</Button>
-            </Link>
+            <ButtonLink href="/login" variant="ghost">Login</ButtonLink>
+            <ButtonLink href="/register">Get Started</ButtonLink>
           </nav>
         </div>
       </header>
@@ -34,14 +66,10 @@ export default function HomePage() {
             students, expats, and global families managing assets in multiple countries.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
-            <Link href="/register">
-              <Button size="lg">Start Free Trial</Button>
-            </Link>
-            <Link href="/demo">
-              <Button size="lg" variant="outline">
-                View Demo
-              </Button>
-            </Link>
+            <ButtonLink href="/register" size="lg">Start Free Trial</ButtonLink>
+            <ButtonLink href="/demo" variant="outline" size="lg">
+              View Demo
+            </ButtonLink>
           </div>
         </section>
 
@@ -192,11 +220,13 @@ function PricingCard({
           </li>
         ))}
       </ul>
-      <Link href="/register" className="mt-8 block">
-        <Button className="w-full" variant={popular ? 'default' : 'outline'}>
-          Get Started
-        </Button>
-      </Link>
+      <ButtonLink
+        href="/register"
+        variant={popular ? 'default' : 'outline'}
+        className="mt-8 w-full"
+      >
+        Get Started
+      </ButtonLink>
     </div>
   )
 }
